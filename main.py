@@ -14,18 +14,18 @@ listings_df['price'] = listings_df['price'].replace('[$,]', '', regex=True).asty
 calendar_df['price'] = calendar_df['price'].replace('[$,]', '', regex=True).astype(float)
 
 def ex1():
-    # Exercice 1:
+    # Exercise 1:
 
-    # 1. Affichez les 5 premières lignes du DataFrame.
+    # 1. Display the first 5 rows of the DataFrame.
     print(listings_df.head())
 
-    # 2. Affichez les informations sur le DataFrame (nombre de lignes, nombre de colonnes, types de données, etc.).
+    # 2. Display information about the DataFrame (number of rows, columns, data types, etc.).
     listings_df.info()
 
-    # 3. Affichez les noms des colonnes du DataFrame.
+    # 3. Display the column names of the DataFrame.
     print(list(listings_df.columns))
 
-    # 4. Affichez les statistiques descriptives du DataFrame (moyenne, écart-type, minimum, maximum, etc.).
+    # 4. Display descriptive statistics of the DataFrame (mean, std, min, max, etc.).
     print(listings_df.describe())
 
 
@@ -40,94 +40,91 @@ def return_vals_in_quartiles(df: pd.DataFrame, columnName):
 def ex2():
     global listings_df
 
-    # Exercice 2
-    # 1. Trouvez les lignes qui contiennent des doublons. Enlevez les doublons du DataFrame.
+    # Exercise 2
+    # 1. Find and remove duplicate rows from the DataFrame.
     print(listings_df.duplicated().sum())
     listings_df.drop_duplicates(inplace=True)
 
-    # 2. Affichez le nombre de valeurs manquantes dans chaque colonne du DataFrame. Identifier la colonne qui ne contient aucune valeur et la supprimer.
+    # 2. Display the number of missing values per column. Identify and remove columns that are entirely empty.
     # Option #1
     print(listings_df.isnull().sum()[listings_df.isnull().sum() == len(listings_df)])
     # Option #2
     print(listings_df.columns[listings_df.isnull().all()])
     listings_df.dropna(axis=1, how='all', inplace=True)
 
-    # 3. Remplacez les valeurs manquantes de la colonne price par la moyenne du quartier.
+    # 3. Replace missing values in the 'price' column with the neighborhood mean.
     listings_df['price'] = listings_df.groupby('neighbourhood')['price'].transform(
         lambda x: x.fillna(x.mean())
     )
 
-    # 4. Remplacez les valeurs manquantes de la colonne host_name par "unkown"
+    # 4. Replace missing values in the 'host_name' column with "unknown".
     listings_df['host_name'] = listings_df['host_name'].fillna("unknown")
 
-    # 5. Vérifiez que le dataframe ne contient plus de valeurs manquantes.
+    # 5. Check that there are no more missing values.
     print(listings_df.isnull().sum().sum())
 
-    # 6. Y a-t-il des valeurs aberrantes dans la colonne price ? Si oui, supprimez-les. Faites de même pour toutes les colonnes numériques.
+    # 6. Check for outliers in numerical columns and remove them.
     for colName in listings_df.select_dtypes(include=[np.number]).columns:
         listings_df = return_vals_in_quartiles(listings_df, colName)
 
 
-
 def ex3():
-    # 1. Quel est le prix moyen des logements dans chaque quartier ? Affichez les résultats sous forme de tableau.
+    # 1. What is the average price of accommodations in each neighborhood? Display results as a table.
     # Option 1:
     limited_listings = listings_df[['neighbourhood_cleansed', 'price']]    
     print(limited_listings.groupby('neighbourhood_cleansed').mean())
     # Option 2:
     print(listings_df.groupby('neighbourhood_cleansed')['price'].mean())
 
-    # 2. Quel est le nombre de logements disponibles dans chaque quartier ? Affichez les résultats sous forme de tableau. Puis sous forme de graphique (barplot).
+    # 2. How many accommodations are available in each neighborhood? Display results as a table and as a bar plot.
     count_by_neigh = listings_df['neighbourhood_cleansed'].value_counts()
     print(count_by_neigh)
-    count_by_neigh.plot(kind='bar', title="Nombre de logements par quartier")
+    count_by_neigh.plot(kind='bar', title="Number of accommodations per neighborhood")
     plt.xlabel("District")
-    plt.ylabel("Amount of appartments")
+    plt.ylabel("Number of apartments")
     plt.tight_layout()
     plt.show()
     
-    # 3. Quelle est la répartition des logements par type de propriété ? Affichez les résultats sous forme de tableau. Puis sous forme de graphique (graphique circulaire).
+    # 3. What is the distribution of accommodations by property type? Display results as a table and as a pie chart.
     prop_type_regrouping = listings_df['property_type'].value_counts()
     print(prop_type_regrouping)
-    prop_type_regrouping.plot(kind='pie', autopct='%1.1f%%', title="Amount of different property types in percentage")
+    prop_type_regrouping.plot(kind='pie', autopct='%1.1f%%', title="Distribution of property types")
     plt.show()
 
-    # 4. A l'aide du plot scatter, visualisez la relation entre le prix et le nombre de chambres. Utilisez une couleur par quartier.
+    # 4. Using a scatter plot, visualize the relationship between price and number of bedrooms, colored by neighborhood.
     print(listings_df.columns)
     sns.scatterplot(data=listings_df, x='price', y='bedrooms', hue='neighbourhood_cleansed', alpha=0.6)
-    plt.title("Correlation between amount of bedrooms and price for rent")
+    plt.title("Correlation between number of bedrooms and rental price")
     plt.tight_layout()
     plt.show()
     
-    # 5. A l'aide du plot scatter, dessinez dans un nuage de points la latitude et la longitude des logements.
+    # 5. Using a scatter plot, display latitude and longitude of the accommodations.
     plt.figure(figsize=(10, 6))
     plt.scatter(listings_df['longitude'], listings_df['latitude'], alpha=0.5, s=5)
-    plt.title("Coords of appartments (latitude, longitude)")
+    plt.title("Coordinates of accommodations (latitude, longitude)")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.show()
 
 
-
 def ex4():
-    # 1. Lisez le fichier calendar.csv.gz et affichez les 5 premières lignes du DataFrame.
+    # 1. Read the calendar.csv.gz file and display the first 5 rows.
     print(calendar_df.head(5))
     
-    # 2. Affichez les informations sur le DataFrame (nombre de lignes, nombre de colonnes, types de données, etc.).
+    # 2. Display information about the calendar DataFrame (number of rows, columns, data types, etc.).
     print(calendar_df.info())
 
-    # 3. Affichez les noms des colonnes du DataFrame.
+    # 3. Display the column names of the calendar DataFrame.
     print(calendar_df.columns)
 
-    # 4. Combien y a-t-il de logements disponibles dans le calendrier pour le 14 juillet 2025 ?
+    # 4. How many accommodations are available in the calendar for July 14, 2025?
     date_filter = calendar_df['date'] == '2025-07-14'
     availability_filter = calendar_df['available'] == 't'
     calendar_grouped_date = calendar_df[date_filter & availability_filter]
-    print(f"Amount of appartments available 2025-07-14 = {calendar_grouped_date['listing_id'].count()}")
+    print(f"Number of available accommodations on 2025-07-14 = {calendar_grouped_date['listing_id'].count()}")
 
-    # 5. Quel est le prix moyen des logements disponibles pour le 14 juillet 2025 ?
-    print(f"Mean price for appartments available 2025-07-14 = {calendar_grouped_date['price'].mean()}")
-
+    # 5. What is the average price of available accommodations for July 14, 2025?
+    print(f"Mean price for accommodations available on 2025-07-14 = {calendar_grouped_date['price'].mean()}")
 
 
 def mean_price_for_last_month(merged_df, appartment_name):
@@ -156,25 +153,24 @@ def reviews_for_appartment(merged_df: pd.DataFrame, appartment_name: str) -> pd.
 
 
 def ex5():
-    # 1. Fusionnez les deux DataFrames sur la colonne listing_id.
+    # 1. Merge the two DataFrames on the column 'listing_id'.
     listings_calendar_merged = pd.merge(calendar_df, listings_df, left_on='listing_id', right_on='id')
 
-    # 2. Affichez les 5 premières lignes du DataFrame fusionné.
+    # 2. Display the first 5 rows of the merged DataFrame.
     print(listings_calendar_merged.head(5))
 
-    # 3. Affichez les informations sur le DataFrame fusionné (nombre de lignes, nombre de colonnes, types de données, etc.).
+    # 3. Display information about the merged DataFrame (number of rows, columns, data types, etc.).
     print(listings_calendar_merged.info())
 
-    # 4. Écrire une fonction qui prend en entrée un nom de logement et qui retourne le prix moyen de ce logement pour les 30 prochains jours.
+    # 4. Write a function that takes a listing name and returns the average price for the next 30 days.
     print(mean_price_for_last_month(listings_calendar_merged, "Stylish Private Suite + Sunny Balcony Paris"))
     
-    # 5. Écrire une fonction qui prend en entrée une date et un quartier et qui retourne la liste des logements disponibles dans ce quartier pour cette date.    
+    # 5. Write a function that takes a date and district and returns the list of available accommodations.
     print(appartments_for_date_and_district(listings_calendar_merged, "2025-06-11", "Batignolles-Monceau")[['name', 'date', 'neighbourhood_cleansed']])
     
-    # 6. Grâce à une fusion entre listings et reviews, écrire une fonction qui prend en entrée un nom de logement et qui retourne la liste des commentaires pour ce logement, triée par date.
+    # 6. Merge listings and reviews, and write a function to return all comments for a given listing, sorted by date.
     listings_reviews_merged = pd.merge(reviews_df, listings_df, left_on='listing_id', right_on='id')
     print(reviews_for_appartment(listings_reviews_merged, 'Your perfect Paris studio on Île Saint-Louis'))
-
 
 
 def print_on_map(appartment_name):
@@ -183,28 +179,25 @@ def print_on_map(appartment_name):
     
     tiles = GoogleTiles()
 
-    # Figure window setup
+    # Setup figure window
     plt.figure(figsize=(8, 8))
     ax = plt.axes(projection=tiles.crs)
 
-    # Set map bordures (for Paris)
+    # Set map boundaries (for Paris)
     ax.set_extent([2.2, 2.5, 48.8, 48.91], crs=ccrs.PlateCarree())
 
-    # Add background for our map
+    # Add background tiles
     ax.add_image(tiles, 12)
 
-    # Print points from DataFrame
+    # Plot points from DataFrame
     ax.scatter("longitude", "latitude", data=required_listing, s=100, transform=ccrs.PlateCarree(), alpha=0.7, color='red')
     plt.title("Airbnb Paris with Google Tiles")
     plt.show()
 
 
 def ex6():
-    # Find location for appartment with provided name.
+    # Find the location for the given accommodation name.
     print_on_map("Your perfect Paris studio on Île Saint-Louis")
 
 
 ex6()
-
-
-
